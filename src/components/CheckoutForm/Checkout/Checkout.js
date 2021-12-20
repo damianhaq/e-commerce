@@ -1,20 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Paper, Stepper, Step, StepLabel, Typography, CircularProgress, Divider, Button } from "@material-ui/core";
 
+import { commerce } from "../../../lib/commerce";
 import useStyles from "./styles";
 import AddresForm from "../AddresForm";
 import PaymentForm from "../PaymentForm";
 
 const steps = ["Shipping addres", "Payment details"];
 
-const Checkout = () => {
+const Checkout = ({ cart }) => {
   const [activeStep, setActiveStep] = useState(0);
+  const [checkoutToken, setCheckoutToken] = useState(null);
+
   const classes = useStyles();
 
+  useEffect(() => {
+    const generateToken = async () => {
+      try {
+        const token = await commerce.checkout.generateToken(cart.id, { type: "cart" });
+
+        setCheckoutToken(token);
+      } catch (error) {}
+    };
+
+    generateToken();
+  }, [cart]);
+
   const Confirmation = () => <div>Confirmation</div>;
-
-  const Form = () => (activeStep === 0 ? <AddresForm /> : <PaymentForm />);
-
+  const Form = () => (activeStep === 0 ? <AddresForm checkoutToken={checkoutToken} /> : <PaymentForm />);
   return (
     <>
       <div className={classes.toolbar} />
@@ -30,7 +43,7 @@ const Checkout = () => {
               </Step>
             ))}
           </Stepper>
-          {activeStep === steps.length ? <Confirmation /> : <Form />}
+          {activeStep === steps.length ? <Confirmation /> : checkoutToken && <Form />}
         </Paper>
       </main>
     </>
