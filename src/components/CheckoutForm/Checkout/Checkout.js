@@ -8,7 +8,7 @@ import PaymentForm from "../PaymentForm";
 
 const steps = ["Shipping addres", "Payment details"];
 
-const Checkout = ({ cart }) => {
+const Checkout = ({ cart, order, onCaptureCheckout, error }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [checkoutToken, setCheckoutToken] = useState(null);
   const [shippingData, setShippingData] = useState({});
@@ -37,7 +37,20 @@ const Checkout = ({ cart }) => {
   };
 
   const Confirmation = () => <div>Confirmation</div>;
-  const Form = () => (activeStep === 0 ? <AddresForm checkoutToken={checkoutToken} next={next} /> : <PaymentForm shippingData={shippingData} />);
+
+  const Form = () =>
+    activeStep === 0 ? (
+      <AddresForm checkoutToken={checkoutToken} next={next} />
+    ) : (
+      <PaymentForm
+        onCaptureCheckout={onCaptureCheckout}
+        backStep={backStep}
+        checkoutToken={checkoutToken}
+        nextStep={nextStep}
+        shippingData={shippingData}
+      />
+    );
+
   return (
     <>
       <div className={classes.toolbar} />
